@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('city');
             $table->string('country');
             $table->longText('description')->nullable();
-            $table->json('facilities')->nullable();
             $table->json('images')->nullable();
             $table->unsignedTinyInteger('star_rating')->default(3); 
             $table->string('status', ['active', 'inactive'])->default('active');

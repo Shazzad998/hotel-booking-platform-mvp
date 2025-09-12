@@ -17,7 +17,6 @@ class Hotel extends Model
         'city',
         'country',
         'description',
-        'facilities',
         'images',
         'status',
         'star_rating',

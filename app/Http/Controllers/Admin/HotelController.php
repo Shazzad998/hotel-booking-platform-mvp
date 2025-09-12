@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreHotelRequest;
+use App\Http\Requests\UpdateHotelRequest;
 use App\Http\Resources\HotelResource;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HotelController extends Controller implements HasMiddleware
@@ -27,10 +30,9 @@ class HotelController extends Controller implements HasMiddleware
     {
         $query = Hotel::query();
         $query->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%");
-            })
-            ->orderBy($request->sort_by ?? 'id', $request->sort_direction ?? 'desc');
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('slug', 'like', "%{$search}%");
+        })->orderBy($request->sort_by ?? 'id', $request->sort_direction ?? 'desc');
 
         $ids = $query->pluck('id');
         $hotels = $query->paginate($request->per_page ?? 10)
@@ -48,15 +50,34 @@ class HotelController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        //
+        return Inertia::render('admin/hotels/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreHotelRequest $request)
     {
-        //
+
+        $validatedData = $request->validated();
+
+        try {
+            // Handle image uploads
+            if ($request->hasFile('images')) {
+                $paths = [];
+                foreach ($request->file('images') as $image) {
+                    $paths[] = $image->store('hotels', 'public');
+                }
+
+                // Save as JSON in hotels table
+                $validatedData['images'] = json_encode($paths);
+            }
+
+            Hotel::create($validatedData);
+            return redirect()->back()->with('success', 'Hotel created successfully');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**
@@ -64,7 +85,8 @@ class HotelController extends Controller implements HasMiddleware
      */
     public function show(string $id)
     {
-        //
+        $hotel = new HotelResource(Hotel::findOrFail($id));
+        return Inertia::render('admin/hotels/Show', compact('hotel'));
     }
 
     /**
@@ -72,15 +94,46 @@ class HotelController extends Controller implements HasMiddleware
      */
     public function edit(string $id)
     {
-        //
+        $hotel = new HotelResource(Hotel::findOrFail($id));
+        return Inertia::render('admin/hotels/Edit', compact('hotel'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateHotelRequest $request, string $id)
     {
-        //
+        $validatedData = $request->validated();
+        $hotel = Hotel::findOrFail($id);
+        try {
+            // Get existing images
+            $paths = json_decode($hotel->images, true) ?? [];
+
+            // Remove selected images
+            if (!empty($validatedData['remove_images'])) {
+                foreach ($validatedData['remove_images'] as $remove) {
+                    if (in_array($remove, $paths)) {
+                        // delete from storage
+                        Storage::disk('public')->delete($remove);
+                        // remove from array
+                        $paths = array_diff($paths, [$remove]);
+                    }
+                }
+            }
+
+            // Add new images
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $paths[] = $image->store('hotels', 'public');
+                }
+            }
+            $validatedData['images'] = json_encode(array_values($paths));
+            $hotel->update($validatedData);
+
+            return redirect()->back()->with('success', "Hotel updated successfully!");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Failed to delete hotels: ' . $th->getMessage());
+        }
     }
 
     /**
@@ -92,15 +145,31 @@ class HotelController extends Controller implements HasMiddleware
     }
 
 
-     public function bulkDelete(Request $request)
+    public function bulkDelete(Request $request)
     {
+        $ids = (array) $request->ids;
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'No hotels selected.');
+        }
+
         try {
-            Hotel::whereIn('id', $request->ids)->delete();
-            $message = $request->ids > 1 ? "Hotels deleted successfully" : "Hotel deleted successfully";
+            $hotels = Hotel::whereIn('id', $ids)->get(['id', 'images']);
+
+            $allImages = $hotels->flatMap(function ($hotel) {
+                return json_decode($hotel->images, true) ?? [];
+            })->filter();
+
+            if ($allImages->isNotEmpty()) {
+                Storage::disk('public')->delete($allImages->all());
+            }
+
+            Hotel::whereIn('id', $ids)->delete();
+
+            $message = count($ids) > 1 ? "Hotels deleted successfully" : "Hotel deleted successfully";
             return redirect()->back()->with('success', $message);
-            
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Failed to delete hotels: ' . $th->getMessage());
         }
     }
 }

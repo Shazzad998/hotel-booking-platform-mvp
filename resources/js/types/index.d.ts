@@ -104,10 +104,18 @@ export interface Hotel {
     city: string;
     country: string;
     description?: string | null;
-    facilities?: string[] | null;
-    images?: string[] | null;
+    images?: string | null;
     star_rating: number; // 1 to 5
     status: 'active' | 'inactive';
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
+}
+
+
+// Used for alert
+export interface Flash {
+    success: string;
+    info: string;
+    warning: string;
+    error: string;
 }

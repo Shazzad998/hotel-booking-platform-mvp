@@ -83,7 +83,7 @@ const DataTable = ({
         }
     };
 
-    const bulkActions:DataTableBulkAction[] = [
+    const bulkActions: DataTableBulkAction[] = [
         {
             label: 'Delete',
             icon: <TrashIcon />,
@@ -106,7 +106,7 @@ const DataTable = ({
             icon: <TrashIcon />,
             onClick: confirmDelete,
         },
-    ]
+    ];
 
     return (
         <>
@@ -143,7 +143,7 @@ const DataTable = ({
                             )}
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium">{`${selected.length} Selected`}</span>
-                                <a className="text-foreground cursor-pointer text-sm font-medium underline" onClick={handleSelectAllItems}>
+                                <a className="cursor-pointer text-sm font-medium text-foreground underline" onClick={handleSelectAllItems}>
                                     {selectedAll ? 'Select none' : `Select all ${ids.length} items`}
                                 </a>
                             </div>
@@ -176,7 +176,7 @@ const DataTable = ({
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead className="w-8 text-center">
-                                                    <Checkbox checked={selected.length >= resource.data.length} onCheckedChange={handleSelectAll} />
+                                                    <Checkbox checked={resource.data.length > 0 && selected.length >= resource.data.length} onCheckedChange={handleSelectAll} />
                                                 </TableHead>
 
                                                 {actions.length && <TableHead className="w-20 text-center">Action</TableHead>}
@@ -199,50 +199,61 @@ const DataTable = ({
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {resource.data.map((item) => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell className="w-8 text-center">
-                                                        <Checkbox
-                                                            checked={selected.includes(item.id)}
-                                                            onCheckedChange={() => handleSelect(item.id)}
-                                                        />
+                                            {resource.data.length > 0 ? (
+                                                resource.data.map((item) => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell className="w-8 text-center">
+                                                            <Checkbox
+                                                                checked={selected.includes(item.id)}
+                                                                onCheckedChange={() => handleSelect(item.id)}
+                                                            />
+                                                        </TableCell>
+
+                                                        {actions.length && (
+                                                            <TableCell className="w-20 text-center">
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="outline" size="icon" className="size-8">
+                                                                            <EllipsisVertical className="size-4" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent side="bottom" align="start">
+                                                                        {actions.map((action, index) => (
+                                                                            <DropdownMenuItem
+                                                                                key={index}
+                                                                                className={action.className}
+                                                                                onSelect={() => {
+                                                                                    requestAnimationFrame(() => {
+                                                                                        action.onClick(item.id);
+                                                                                    });
+                                                                                }}
+                                                                            >
+                                                                                {action.icon}
+                                                                                <span>{action.label}</span>
+                                                                            </DropdownMenuItem>
+                                                                        ))}
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
+                                                        )}
+
+                                                        {columns.map((column, index) => (
+                                                            <TableCell key={index} className="whitespace-nowrap">
+                                                                {column.render ? column.render(item) : item[column.field]}
+                                                            </TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell
+                                                        colSpan={columns.length + 2} // adjust +2 for checkbox + actions columns
+                                                        className="h-24 text-center text-muted-foreground"
+                                                    >
+                                                        No data found
                                                     </TableCell>
-
-                                                    {actions.length && (
-                                                        <TableCell className="w-20 text-center">
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="outline" size="icon" className="size-8">
-                                                                        <EllipsisVertical className="size-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent side="bottom" align="start">
-                                                                    {actions.map((action, index) => (
-                                                                        <DropdownMenuItem
-                                                                            key={index}
-                                                                            className={action.className}
-                                                                            onSelect={() => {
-                                                                                requestAnimationFrame(() => {
-                                                                                    action.onClick(item.id);
-                                                                                });
-                                                                            }}
-                                                                        >
-                                                                            {action.icon}
-                                                                            <span>{action.label}</span>
-                                                                        </DropdownMenuItem>
-                                                                    ))}
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </TableCell>
-                                                    )}
-
-                                                    {columns.map((column, index) => (
-                                                        <TableCell key={index} className="whitespace-nowrap">
-                                                            {column.render ? column.render(item) : item[column.field]}
-                                                        </TableCell>
-                                                    ))}
                                                 </TableRow>
-                                            ))}
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </div>

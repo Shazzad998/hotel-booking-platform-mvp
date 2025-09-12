@@ -1,15 +1,15 @@
 import DataTable from '@/components/DataTable';
+import DeleteConfirm from '@/components/DeleteConfirm';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
 import hotels from '@/routes/admin/hotels';
-import { BreadcrumbItem, DataTableAction, DataTableBulkAction, DataTableColumn, Hotel, ResourceData } from '@/types';
+import { BreadcrumbItem, ResourceData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Eye, Pencil, TrashIcon } from 'lucide-react';
+import { HousePlus } from 'lucide-react';
 import { useState } from 'react';
 import { columns } from './partials/Columns';
-import DeleteConfirm from '@/components/DeleteConfirm';
-
-type Props = {};
+import NoDataFound from '@/components/NoDataFound';
+import { dashboard } from '@/routes';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,31 +22,42 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const Index = (props: Props) => {
+const Index = () => {
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [selectedAllItems, setSelectedAllItems] = useState<boolean>(false);
     const [deleteIds, setDeleteIds] = useState<number[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const companies = usePage().props.data as ResourceData;
 
+    //Paginated hotels list
+    const hotels_resource = usePage().props.data as ResourceData;
 
-    const handleEdit = (id:number) => {
-        router.get(hotels.edit(id))
+    //Redirect to create page
+    const handleCreate = () => {
+        router.get(hotels.create());
+    };
+    //Redirect to edit page
+    const handleEdit = (id: number) => {
+        router.get(hotels.edit(id));
     };
 
-    const handleShow = (id:number) => {
-        router.get(hotels.show(id))
+    //Redirect to show page
+    const handleShow = (id: number) => {
+        router.get(hotels.show(id));
     };
 
+    //Show confirmation message
     const confirmBulkDelete = (ids: number[]) => {
         setDeleteIds(ids);
         setDeleteDialogOpen(true);
     };
+
+    //Show confirmation message
     const confirmDelete = (id: number) => {
         setDeleteIds([id]);
         setDeleteDialogOpen(true);
     };
 
+    //Delete the selected items
     const deleteItem = () => {
         if (deleteIds.length > 0) {
             router.post(
@@ -72,20 +83,28 @@ const Index = (props: Props) => {
 
             <DeleteConfirm open={deleteDialogOpen} opOpenChange={setDeleteDialogOpen} onConfirm={deleteItem} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-            <DataTable
-                    resource={companies}
+                <div className="flex flex-wrap items-center justify-between">
+                    <h1 className="text-2xl font-bold">Hotels</h1>
+                    <Button onClick={() => handleCreate()}>
+                        <HousePlus /> Add Hotel
+                    </Button>
+                </div>
+                {hotels_resource.data.length > 0? (<DataTable
+                    resource={hotels_resource}
                     columns={columns}
                     list_route={hotels.index().url}
                     selected={selectedItems}
                     setSelected={setSelectedItems}
                     selectedAll={selectedAllItems}
                     setSelectedAll={setSelectedAllItems}
-                    handleShow = {handleShow}
+                    handleShow={handleShow}
                     handleEdit={handleEdit}
                     confirmDelete={confirmDelete}
                     confirmBulkDelete={confirmBulkDelete}
-                />
-
+                />) : (<NoDataFound createData={<Button onClick={() => handleCreate()}>
+                        <HousePlus /> Add Hotel
+                    </Button>}/>)}
+                
             </div>
         </AppLayout>
     );
