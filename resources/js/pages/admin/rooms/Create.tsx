@@ -1,11 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import hotels from '@/routes/admin/hotels';
 import { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import Form from './Form';
+import rooms from '@/routes/admin/rooms';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,19 +13,19 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Hotels',
-        href: hotels.index().url,
+        title: 'Rooms',
+        href: rooms.index().url,
     },
     {
         title: 'Create',
-        href: hotels.create().url,
+        href: rooms.create().url,
     },
 ];
 
 const Create = () => {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const handleSubmit = (data: any, reset?: () => void) => {
-        router.post(hotels.store(), data, {
+        router.post(rooms.store(), data, {
             onSuccess: () => {
                 reset?.();
             },
@@ -36,12 +36,12 @@ const Create = () => {
     };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Hotel" />
+            <Head title="Create Room" />
 
             <div className="grid gap-4 py-8">
                 <Card className="border-none pt-0 shadow-none">
                     <CardHeader>
-                        <CardTitle>Create Hotel</CardTitle>
+                        <CardTitle>Create Room</CardTitle>
                         <CardDescription>
                             Fields marked with <span className="text-red-500">*</span> are required.
                         </CardDescription>

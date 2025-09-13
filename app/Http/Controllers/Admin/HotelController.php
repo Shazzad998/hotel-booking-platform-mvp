@@ -68,9 +68,7 @@ class HotelController extends Controller implements HasMiddleware
                 foreach ($request->file('images') as $image) {
                     $paths[] = $image->store('hotels', 'public');
                 }
-
-                // Save as JSON in hotels table
-                $validatedData['images'] = json_encode($paths);
+                $validatedData['images'] = $paths;
             }
 
             Hotel::create($validatedData);
@@ -107,7 +105,7 @@ class HotelController extends Controller implements HasMiddleware
         $hotel = Hotel::findOrFail($id);
         try {
             // Get existing images
-            $paths = json_decode($hotel->images, true) ?? [];
+            $paths = $hotel->images ?? [];
 
             // Remove selected images
             if (!empty($validatedData['remove_images'])) {
@@ -127,7 +125,7 @@ class HotelController extends Controller implements HasMiddleware
                     $paths[] = $image->store('hotels', 'public');
                 }
             }
-            $validatedData['images'] = json_encode(array_values($paths));
+            $validatedData['images'] = array_values($paths);
             $hotel->update($validatedData);
 
             return redirect()->back()->with('success', "Hotel updated successfully!");
@@ -157,7 +155,7 @@ class HotelController extends Controller implements HasMiddleware
             $hotels = Hotel::whereIn('id', $ids)->get(['id', 'images']);
 
             $allImages = $hotels->flatMap(function ($hotel) {
-                return json_decode($hotel->images, true) ?? [];
+                return $hotel->images ?? [];
             })->filter();
 
             if ($allImages->isNotEmpty()) {

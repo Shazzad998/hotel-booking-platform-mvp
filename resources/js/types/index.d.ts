@@ -104,13 +104,40 @@ export interface Hotel {
     city: string;
     country: string;
     description?: string | null;
-    images?: string | null;
+    images?: string[] | null;
     star_rating: number; // 1 to 5
     status: 'active' | 'inactive';
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 }
 
+export interface RoomType {
+    id: number;
+    name: string;
+    description?: string | null;
+    no_of_bedrooms: number;
+    max_guests: number;
+    facilities?: string[] | null; // stored as JSON array
+    created_at: string; // ISO timestamp
+    updated_at: string; // ISO timestamp
+}
+
+export interface Room {
+    id: number;
+    hotel_id: number;
+    room_type_id: number;
+    room_number: string;
+    price_per_night: string;
+    images?: string[] | null;
+    status: 'available' | 'booked' | 'under_maintenance';
+    created_at: string;
+    updated_at: string;
+
+    // Optional relations (if eager loaded from backend)
+    hotel?: Hotel;
+    room_type?: RoomType;
+}
+export type RoomStatus = "available" | "booked" | "under_maintenance";
 
 // Used for alert
 export interface Flash {

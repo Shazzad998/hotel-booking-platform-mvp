@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { DataTableColumn, Hotel } from '@/types';
+import { DataTableColumn, Room } from '@/types';
 
 export const columns: DataTableColumn[] = [
     {
@@ -8,30 +8,50 @@ export const columns: DataTableColumn[] = [
     },
 
     {
-        title: 'Name',
-        field: 'name',
+        title: 'Room No',
+        field: 'room_number',
+    },
+    {
+        title: 'Price/Night',
+        field: 'price_per_night',
+        render: (item: Room) => {
+            return <span> $ {item.price_per_night}</span>;
+            
+        },
     },
 
     {
-        title: 'Address',
-        field: 'address',
-        sortable: false,
+        title: 'Room Type',
+        field: 'room_type_id',
+        render: (item: Room) => {
+            if (item.room_type) {
+                return <span>{item.room_type.name}</span>;
+            } else {
+                return <span> &mdash;</span>;
+            }
+        },
     },
-
     {
-        title: 'City',
-        field: 'city',
-    },
-    {
-        title: 'Country',
-        field: 'country',
+        title: 'Hotel',
+        field: 'hotel_id',
+        render: (item: Room) => {
+            if (item.hotel) {
+                return <span>{item.hotel.name}</span>;
+            } else {
+                return <span> &mdash;</span>;
+            }
+        },
     },
 
     {
         title: 'Status',
         field: 'status',
-        render: (item: Hotel) => {
-            return <Badge variant={item.status == 'active' ? 'default' : 'secondary'}>{item.status == 'active' ? 'Active' : 'Inactive'}</Badge>;
+        render: (item: Room) => {
+            return (
+                <Badge variant={item.status == 'available' ? 'default' : (item.status == 'booked'? "destructive" : "secondary")}>
+                    {item.status == 'available' ? 'Available' : item.status == 'booked' ? 'Booked' : 'Under Maintance'}
+                </Badge>
+            );
         },
     },
     {

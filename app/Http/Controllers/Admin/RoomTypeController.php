@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoomTypeRequest;
 use App\Http\Requests\UpdateRoomTypeRequest;
-use App\Http\Resources\RoomTypeResouce;
+use App\Http\Resources\RoomTypeResource;
 use App\Models\RoomType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class RoomTypeController extends Controller
@@ -28,7 +27,7 @@ class RoomTypeController extends Controller
             ->withQueryString();
 
         return Inertia::render('admin/room-types/Index', [
-            'data' => RoomTypeResouce::collection($roomTypes),
+            'data' => RoomTypeResource::collection($roomTypes),
             'ids' => $ids,
             'filters' => $request->only(['search', 'sort_by', 'sort_direction', 'per_page'])
         ]);
@@ -49,7 +48,6 @@ class RoomTypeController extends Controller
     {
         $validatedData = $request->validated();
         try {
-            $validatedData['facilities'] = json_encode($validatedData['facilities']);
             RoomType::create($validatedData);
             return redirect()->back()->with('success', 'Room-Type created successfully!');
         } catch (\Throwable $th) {
@@ -62,7 +60,7 @@ class RoomTypeController extends Controller
      */
     public function show(string $id)
     {
-        $roomType = new RoomTypeResouce(RoomType::findOrFail($id));
+        $roomType = new RoomTypeResource(RoomType::findOrFail($id));
         return Inertia::render('admin/room-types/Show', compact('roomType'));
     }
 
@@ -71,7 +69,7 @@ class RoomTypeController extends Controller
      */
     public function edit(string $id)
     {
-        $roomType = new RoomTypeResouce(RoomType::findOrFail($id));
+        $roomType = new RoomTypeResource(RoomType::findOrFail($id));
         return Inertia::render('admin/room-types/Edit', compact('roomType'));
     }
 
@@ -83,7 +81,6 @@ class RoomTypeController extends Controller
         $validatedData = $request->validated();
         $roomType = RoomType::findOrFail($id);
         try {
-            $validatedData['facilities'] = json_encode($validatedData['facilities']);
             $roomType->update($validatedData);
             return redirect()->back()->with('success', "Room-Type updated successfully!");
         } catch (\Throwable $th) {

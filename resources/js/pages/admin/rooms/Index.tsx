@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { columns } from './partials/Columns';
 import NoDataFound from '@/components/NoDataFound';
 import { dashboard } from '@/routes';
+import rooms from '@/routes/admin/rooms';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,8 +18,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
     {
-        title: 'Hotels',
-        href: hotels.index().url,
+        title: 'Rooms',
+        href: rooms.index().url,
     },
 ];
 
@@ -28,21 +29,21 @@ const Index = () => {
     const [deleteIds, setDeleteIds] = useState<number[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-    //Paginated hotels list
-    const hotels_resource = usePage().props.data as ResourceData;
+    //Paginated rooms list
+    const rooms_resource = usePage().props.data as ResourceData;
 
     //Redirect to create page
     const handleCreate = () => {
-        router.get(hotels.create());
+        router.get(rooms.create());
     };
     //Redirect to edit page
     const handleEdit = (id: number) => {
-        router.get(hotels.edit(id));
+        router.get(rooms.edit(id));
     };
 
     //Redirect to show page
     const handleShow = (id: number) => {
-        router.get(hotels.show(id));
+        router.get(rooms.show(id));
     };
 
     //Show confirmation message
@@ -61,7 +62,7 @@ const Index = () => {
     const deleteItem = () => {
         if (deleteIds.length > 0) {
             router.post(
-                hotels.bulkDelete(),
+                rooms.bulkDelete(),
                 {
                     ids: deleteIds,
                 },
@@ -79,20 +80,20 @@ const Index = () => {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Hotels" />
+            <Head title="Rooms" />
 
             <DeleteConfirm open={deleteDialogOpen} opOpenChange={setDeleteDialogOpen} onConfirm={deleteItem} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="flex flex-wrap items-center justify-between">
-                    <h1 className="text-2xl font-bold">Hotels</h1>
+                    <h1 className="text-2xl font-bold">Rooms</h1>
                     <Button onClick={() => handleCreate()}>
-                        <HousePlus /> Add Hotel
+                        <HousePlus /> Add Room
                     </Button>
                 </div>
-                {hotels_resource.data.length > 0? (<DataTable
-                    resource={hotels_resource}
+                {rooms_resource.data.length > 0? (<DataTable
+                    resource={rooms_resource}
                     columns={columns}
-                    list_route={hotels.index().url}
+                    list_route={rooms.index().url}
                     selected={selectedItems}
                     setSelected={setSelectedItems}
                     selectedAll={selectedAllItems}
@@ -102,7 +103,7 @@ const Index = () => {
                     confirmDelete={confirmDelete}
                     confirmBulkDelete={confirmBulkDelete}
                 />) : (<NoDataFound createData={<Button onClick={() => handleCreate()}>
-                        <HousePlus /> Add Hotel
+                        <HousePlus /> Add Room
                     </Button>}/>)}
                 
             </div>

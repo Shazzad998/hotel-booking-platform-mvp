@@ -26,7 +26,7 @@ export function Combobox({ options, selectedValue, setSelectedValue, placeholder
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="justify-between"
+                    className="justify-between w-full"
                     // className={cn('justify-between overflow-hidden', className)}
                 >
                     {selectedValue ? (
@@ -46,11 +46,11 @@ export function Combobox({ options, selectedValue, setSelectedValue, placeholder
                            {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.value.toString()}
+                                    value={option.label}
                                     onSelect={(value) => {
                                         setSelectedValue(
                                             options.find(
-                                                (opt) => opt.value == value
+                                                (opt) => opt.label == value
                                             ) || null
                                         );
                                         setOpen(false);

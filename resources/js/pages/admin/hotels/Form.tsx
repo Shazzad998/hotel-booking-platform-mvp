@@ -56,7 +56,7 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
         setPreviewUrls(updatedUrls);
     };
 
-    const [existingImages, setExistingImages] = useState<string[]>(hotel?.images ? JSON.parse(hotel?.images) : []);
+    const [existingImages, setExistingImages] = useState<string[]>(hotel?.images || []);
     const handleRemoveExisting = (path: string) => {
         setExistingImages(existingImages.filter((i) => i !== path));
         setData('remove_images', [...data.remove_images, path]);
@@ -150,14 +150,14 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
                     {previewUrls.length > 0 && (
                         <>
                             {previewUrls.map((url, idx) => (
-                                <div key={idx} className="relative">
-                                    <img src={url} alt="Preview" className="h-24 w-full rounded border object-cover" />
+                                <div key={idx} className="relative p-1 border rounded">
+                                    <img src={url} alt="Preview" className="h-24 w-24 object-contain" />
                                     <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
                                         className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black"
                                     >
-                                        <X size={14} />
+                                        <X size={14}/>
                                     </button>
                                 </div>
                             ))}
@@ -166,14 +166,14 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
 
                     {existingImages &&
                         existingImages.map((img: string, i: number) => (
-                            <div key={i} className="relative">
-                                <img src={`/storage/${img}`} alt="Hotel" className="h-24 w-full rounded border object-cover" />
+                            <div key={i} className="relative p-1 border rounded">
+                                <img src={`/storage/${img}`} alt="Hotel" className="h-24 w-24 object-contain" />
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveExisting(img)}
                                     className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black"
                                 >
-                                    ✕
+                                    <X size={14}/>
                                 </button>
                             </div>
                         ))}

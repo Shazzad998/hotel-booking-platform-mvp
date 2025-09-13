@@ -10,7 +10,7 @@ import roomTypes from '@/routes/admin/room-types';
 
 const Edit = () => {
     const roomType = usePage().props.roomType as any;
-
+console.log(roomType)
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Dashboard',

@@ -1,36 +1,57 @@
+import { Combobox } from '@/components/Combobox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { slugify } from '@/lib/utils';
-import hotels from '@/routes/admin/hotels';
-import { Link, useForm } from '@inertiajs/react';
+import rooms from '@/routes/admin/rooms';
+import { Hotel, Room, RoomStatus, RoomType, SelectOption } from '@/types';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 
 interface HotelFormProps {
-    hotel?: any;
+    room?: Room;
     onSubmit: (data: any, reset?: () => void) => void;
     errors: { [key: string]: string };
-    reset?: boolean
+    reset?: boolean;
 }
 
-const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
+const Form = ({ room, onSubmit, errors }: HotelFormProps) => {
     const { data, setData, processing, reset } = useForm({
-        name: hotel?.name || '',
-        slug: hotel?.slug || '',
-        address: hotel?.address || '',
-        city: hotel?.city || '',
-        country: hotel?.country || '',
-        description: hotel?.description || '',
-        star_rating: hotel?.star_rating || 3,
-        status: hotel?.status || 'active',
+        hotel_id: room?.hotel_id || '',
+        room_type_id: room?.room_type_id || '',
+        room_number: room?.room_number || '',
+        price_per_night: room?.price_per_night || '',
+        status: room?.status || 'available',
         images: [] as File[],
         remove_images: [] as string[],
-        _method: hotel? "PUT" : "POST"
+        _method: room ? 'PUT' : 'POST',
     });
+
+    const hotels = usePage().props.hotels as Hotel[];
+    const room_types = usePage().props.room_types as RoomType[];
+
+    const statuses = [
+        { value: 'available', label: 'Available' },
+        { value: 'booked', label: 'Booked' },
+        { value: 'under_maintenance', label: 'Under Maintenance' },
+    ];
+    const hotelOptions: SelectOption[] = hotels.map((hotel) => ({
+        label: hotel.name,
+        value: hotel.id.toString(),
+    }));
+
+    const roomTypeOptions: SelectOption[] = room_types.map((room_type) => ({
+        label: room_type.name,
+        value: room_type.id.toString(),
+    }));
+
+    // If room exists, find the matching option by id
+    const [hotel, setHotel] = useState<SelectOption | null>(room ? (hotelOptions.find((h) => h.value === room.hotel_id.toString()) ?? null) : null);
+
+    const [roomType, setRoomType] = useState<SelectOption | null>(
+        room ? (roomTypeOptions.find((rt) => rt.value === room.room_type_id.toString()) ?? null) : null,
+    );
 
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
@@ -56,81 +77,85 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
         setPreviewUrls(updatedUrls);
     };
 
-    const [existingImages, setExistingImages] = useState<string[]>(hotel?.images ? JSON.parse(hotel?.images) : []);
+    const [existingImages, setExistingImages] = useState<string[]>(room?.images || []);
     const handleRemoveExisting = (path: string) => {
         setExistingImages(existingImages.filter((i) => i !== path));
         setData('remove_images', [...data.remove_images, path]);
+    };
+
+    const resetData = () => {
+        reset();
+        setHotel(null);
+        setRoomType(null);
     };
     return (
         <form
             onSubmit={(e) => {
                 e.preventDefault();
-                onSubmit(data, reset);
+                onSubmit(data, resetData);
             }}
             className="flex max-w-2xl flex-col gap-6"
         >
             <div className="grid gap-2 md:grid-cols-2">
-                <div className="grid gap-2">
+                <div className="grid grow gap-2">
                     <Label>
-                        Hotel Name <span className="text-red-500">*</span>
+                        Hotel <span className="text-red-500">*</span>
                     </Label>
                     <div>
-                        <Input
-                            value={data.name}
-                            onChange={(e) => {
-                                setData('name', e.target.value);
-                                setData('slug', slugify(e.target.value));
+                        <Combobox
+                            options={hotelOptions}
+                            selectedValue={hotel}
+                            setSelectedValue={(value) => {
+                                setData('hotel_id', value?.value ?? '');
+                                setHotel(value);
                             }}
-                            placeholder="Hotel Name"
+                            placeholder="Select Hotel"
                         />
-                        {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                        {errors.hotel_id && <p className="text-sm text-red-500">{errors.hotel_id}</p>}
                     </div>
                 </div>
                 <div className="grid gap-2">
                     <Label>
-                        slug <span className="text-red-500">*</span>
+                        Room Type <span className="text-red-500">*</span>
                     </Label>
                     <div>
-                        <Input value={data.slug} onChange={(e) => setData('slug', e.target.value)} placeholder="Hotel Name" />
-                        {errors.slug && <p className="text-sm text-red-500">{errors.slug}</p>}
+                        <Combobox
+                            options={roomTypeOptions}
+                            selectedValue={roomType}
+                            setSelectedValue={(value) => {
+                                setData('room_type_id', value?.value ?? '');
+                                setRoomType(value);
+                            }}
+                            placeholder="Select Hotel"
+                        />
+                        {errors.hotel_id && <p className="text-sm text-red-500">{errors.hotel_id}</p>}
                     </div>
                 </div>
             </div>
 
             <div className="grid gap-2">
                 <Label>
-                    Address <span className="text-red-500">*</span>
+                    Room Number <span className="text-red-500">*</span>
                 </Label>
                 <div>
-                    <Input value={data.address} onChange={(e) => setData('address', e.target.value)} placeholder="Hotel Address" />
+                    <Input value={data.room_number} onChange={(e) => setData('room_number', e.target.value)} placeholder="Hotel Address" />
                     {errors.address && <p className="text-sm text-red-500">{errors.address}</p>}
                 </div>
             </div>
 
             <div className="grid gap-2">
                 <Label>
-                    City <span className="text-red-500">*</span>
+                    Price per Night <span className="text-red-500">*</span>
                 </Label>
                 <div>
-                    <Input value={data.city} onChange={(e) => setData('city', e.target.value)} placeholder="Hotel City" />
-                    {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
-                </div>
-            </div>
-            <div className="grid gap-2">
-                <Label>
-                    Country <span className="text-red-500">*</span>
-                </Label>
-                <div>
-                    <Input value={data.country} onChange={(e) => setData('country', e.target.value)} placeholder="Hotel Country" />
-                    {errors.country && <p className="text-sm text-red-500">{errors.country}</p>}
-                </div>
-            </div>
-
-            <div className="grid gap-2">
-                <Label>Description</Label>
-                <div>
-                    <Textarea value={data.description} onChange={(e) => setData('description', e.target.value)} placeholder="Hotel Description" />
-                    {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+                    <Input
+                        type="number"
+                        min={1}
+                        value={data.price_per_night}
+                        onChange={(e) => setData('price_per_night', e.target.value)}
+                        placeholder="Enter max number of guests"
+                    />
+                    {errors.price_per_night && <p className="text-sm text-red-500">{errors.price_per_night}</p>}
                 </div>
             </div>
 
@@ -150,8 +175,8 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
                     {previewUrls.length > 0 && (
                         <>
                             {previewUrls.map((url, idx) => (
-                                <div key={idx} className="relative">
-                                    <img src={url} alt="Preview" className="h-24 w-full rounded border object-cover" />
+                                <div key={idx} className="relative p-1 border rounded">
+                                    <img src={url} alt="Preview" className="h-24 w-24 object-contain" />
                                     <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
@@ -166,14 +191,14 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
 
                     {existingImages &&
                         existingImages.map((img: string, i: number) => (
-                            <div key={i} className="relative">
-                                <img src={`/storage/${img}`} alt="Hotel" className="h-24 w-full rounded border object-cover" />
+                            <div key={i} className="relative p-1 border rounded">
+                                <img src={`/storage/${img}`} alt="Rooms" className="h-24 w-24 object-contain" />
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveExisting(img)}
                                     className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black"
                                 >
-                                    ✕
+                                    <X size={14}/>
                                 </button>
                             </div>
                         ))}
@@ -181,32 +206,23 @@ const Form = ({ hotel, onSubmit, errors }: HotelFormProps) => {
             </div>
 
             <div className="grid gap-2">
-                <Label>Star Rating</Label>
-                <Select value={String(data.star_rating)} onValueChange={(val) => setData('star_rating', Number(val))}>
+                <Label>Status</Label>
+                <Select value={String(data.status)} onValueChange={(val) => setData('status', val as RoomStatus)}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select star rating" />
+                        <SelectValue placeholder="Select Status" />
                     </SelectTrigger>
                     <SelectContent>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <SelectItem key={star} value={String(star)}>
-                                {star} Star
+                        {statuses.map(({ value, label }) => (
+                            <SelectItem key={value} value={value}>
+                                {label}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
 
-            <div className="grid gap-2">
-                <Label>Status</Label>
-                <Switch
-                    id="status"
-                    checked={data.status === 'active'}
-                    onCheckedChange={(checked) => setData('status', checked ? 'active' : 'inactive')}
-                />
-            </div>
-
             <div className="flex justify-end gap-2">
-                <Link href={hotels.index()}>
+                <Link href={rooms.index()}>
                     <Button variant={'secondary'}>Cancel</Button>
                 </Link>
                 <Button type="submit" disabled={processing}>

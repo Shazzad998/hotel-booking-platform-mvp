@@ -2,13 +2,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import hotels from '@/routes/admin/hotels';
-import { BreadcrumbItem } from '@/types';
+import { BreadcrumbItem, Hotel } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import Form from './Form';
 
 const Edit = () => {
-    const hotel = usePage().props.hotel as any;
+    const hotel = usePage().props.hotel as Hotel;
 
     console.log(hotel)
 
@@ -20,6 +20,10 @@ const Edit = () => {
         {
             title: 'Hotels',
             href: hotels.index().url,
+        },
+        {
+            title: hotel.name,
+            href: "",
         },
     ];
 

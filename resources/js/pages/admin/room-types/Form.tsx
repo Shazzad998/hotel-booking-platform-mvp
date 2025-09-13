@@ -18,7 +18,7 @@ const Form = ({ roomType, onSubmit, errors }: FormProps) => {
         description: roomType?.description || '',
         no_of_bedrooms: roomType?.no_of_bedrooms || '',
         max_guests: roomType?.max_guests || '',
-        facilities: roomType?.facilities? JSON.parse(roomType?.facilities): [],
+        facilities: roomType?.facilities || [],
         _method: roomType ? 'PUT' : 'POST',
     });
 

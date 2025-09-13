@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoomTypeResouce extends JsonResource
+class RoomTypeResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,7 +20,7 @@ class RoomTypeResouce extends JsonResource
             'description'   => $this->description,
             'no_of_bedrooms' => $this->no_of_bedrooms,
             'max_guests'    => $this->max_guests,
-            'facilities'    => $this->facilities ?? [],
+            'facilities'    => $this->facilities?? [],
             'created_at'    => $this->created_at?->toDateTimeString(),
             'updated_at'    => $this->updated_at?->toDateTimeString(),
         ];
