@@ -5,9 +5,11 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Hotel, LayoutGrid } from 'lucide-react';
+import { Building2, House, LayoutDashboard, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 import hotels from '@/routes/admin/hotels';
+import roomTypes from '@/routes/admin/room-types';
+import rooms from '@/routes/admin/rooms';
 
 const mainNavItems: NavItem[] = [
     {
@@ -18,7 +20,17 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Hotels',
         href: hotels.index().url,
-        icon: Hotel,
+        icon: Building2,
+    },
+    {
+        title: 'Room Types',
+        href: roomTypes.index().url,
+        icon: LayoutDashboard,
+    },
+    {
+        title: 'Rooms',
+        href: rooms.index().url,
+        icon: House,
     },
 ];
 

@@ -119,3 +119,11 @@ export interface Flash {
     warning: string;
     error: string;
 }
+
+// Used for  dropdown select options
+export type SelectOption = {
+    label: string;
+    value: string;
+    description?: string;
+    image?: string;
+};

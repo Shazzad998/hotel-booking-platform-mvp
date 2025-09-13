@@ -26,10 +26,7 @@ class HotelFactory extends Factory
             'city' => $this->faker->city,
             'country' => $this->faker->country,
             'description' => $this->faker->paragraph(3),
-            'images' => json_encode([
-                $this->faker->imageUrl(640, 480, 'hotel', true),
-                $this->faker->imageUrl(640, 480, 'hotel', true),
-            ]),
+            'images' => json_encode([]),
             'star_rating' => $this->faker->numberBetween(1, 5),
             'status' => $this->faker->randomElement(['active', 'inactive']),
         ];

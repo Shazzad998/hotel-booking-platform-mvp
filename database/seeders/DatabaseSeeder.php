@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Hotel;
+use App\Models\RoomType;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,9 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
         //Generate Fake Hotels
         $this->call(HotelSeeder::class);
+
+        //Generate Fake Room Types
+        RoomType::factory()->count(10)->create();
 
     }
 }
