@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
         //Generate Admin user
         $this->call(AdminUserSeeder::class);
         //Generate Fake Hotels
-        $this->call(HotelSeeder::class);
+        // $this->call(HotelSeeder::class);
 
         //Generate Fake Room Types
-        RoomType::factory()->count(10)->create();
+        // RoomType::factory()->count(10)->create();
         //Generate Fake Rooms
         Room::factory()->count(10)->create();
 

@@ -26,4 +26,20 @@ class Hotel extends Model
         'facilities' => 'array',
         'images' => 'array',
     ];
+
+
+    public function rooms()
+    {
+        return $this->hasMany(Room::class, 'hotel_id', 'id');
+    }
+
+
+    public function getPriceStartFromAttribute()
+    {
+        return $this->rooms()->min('price_per_night');
+    }
+    public function getFacilitiesAttribute()
+    {
+        return $this->rooms()->min('price_per_night');
+    }
 }

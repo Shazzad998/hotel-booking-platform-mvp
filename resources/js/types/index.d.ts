@@ -34,6 +34,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    phone?: string;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;
@@ -109,6 +110,7 @@ export interface Hotel {
     status: 'active' | 'inactive';
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
+    price_start_from?:string
 }
 
 export interface RoomType {

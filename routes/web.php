@@ -3,12 +3,19 @@
 use App\Http\Controllers\Admin\HotelController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\RoomTypeController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::get('/hotels/{hotel}', [HomeController::class, 'show'])->name('hotels.show');
+Route::get('/booking/create', [BookingController::class, 'bookingCreate'])->name('booking.create');
+Route::post('/booking', [BookingController::class, 'bookingStore'])->name('booking.store');
+Route::get('/bookings/{reference}', [BookingController::class, 'show'])->name('bookings.show');
+Route::post('/bookings/cancel/{id}', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
