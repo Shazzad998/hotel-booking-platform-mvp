@@ -6,6 +6,7 @@ use App\Http\Resources\Web\HotelResource;
 use App\Http\Resources\Web\RoomResource;
 use App\Models\Hotel;
 use App\Models\Room;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -61,15 +62,37 @@ class HomeController extends Controller
     // Show single hotel with rooms
     public function show(string $slug, Request $request)
     {
-        $hotel = Hotel::with('rooms.room_type')->where('slug', $slug)->first();
+        $from = $request->input('from', Carbon::today()->toDateString());
+        $to   = $request->input('to', Carbon::today()->addDays(2)->toDateString());
+        $rooms  = (int) $request->input('number_of_rooms', 1);
+        $guests = (int) $request->input('number_of_guests', 1);
 
+        // Load the hotel
+        $hotel = Hotel::with('rooms.room_type')
+            ->where('slug', $slug)
+            ->firstOrFail();
 
+        // Filter rooms for this hotel
+        $roomsQuery = Room::with('room_type')
+            ->where('hotel_id', $hotel->id);
 
-        $rooms = Room::with('room_type')->where('hotel_id', $hotel->id)->get();
+        // Apply availability filter
+        if ($from && $to) {
+            $roomsQuery->available($from, $to);
+        }
+
+        // Apply room type requirements filter
+        $roomsQuery->whereHas('room_type', function ($q) use ($rooms, $guests) {
+            $q->where('no_of_bedrooms', '>=', $rooms)
+                ->where('max_guests', '>=', $guests);
+        });
+
+        $rooms = $roomsQuery->get();
 
         return inertia('web/ShowHotel', [
             'hotel' => new HotelResource($hotel),
             'rooms' => RoomResource::collection($rooms),
+            'filters' => $request->only(['from', 'to', 'number_of_rooms', 'number_of_guests']),
         ]);
     }
 

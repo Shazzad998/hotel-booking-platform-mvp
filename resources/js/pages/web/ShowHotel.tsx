@@ -2,35 +2,45 @@ import { Carousel, CarouselMainContainer, CarouselThumbsContainer, SliderMainIte
 import { DatePickerWithRange } from '@/components/DatePickerWithRange';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import HeaderSearch from '@/components/web/HeaderSearch';
 import WebLayout from '@/layouts/web-layout';
 import booking from '@/routes/booking';
-import { Hotel, Room } from '@/types';
+import hotels from '@/routes/hotels';
+import { Hotel, QueryFilters, Room } from '@/types';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { Check, MapPin, Star } from 'lucide-react';
+import { Check, MapPin, Search, Star } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
 const ShowHotel = () => {
     const hotel = usePage().props.hotel as Hotel;
     const rooms = usePage().props.rooms as Room[];
+    const { filters } = usePage<{ filters: QueryFilters }>().props;
     const hotelImages = hotel.images;
 
     const today = new Date();
     const twoDaysLater = new Date();
     twoDaysLater.setDate(today.getDate() + 2);
+    // Convert filters.from / filters.to (strings) into Date objects, or fallback
+    const fromDate = filters.from ? new Date(filters.from) : today;
+    const toDate = filters.to ? new Date(filters.to) : twoDaysLater;
+
+    // DateRange state for your date picker
     const [date, setDate] = useState<DateRange | undefined>({
-        from: today,
-        to: twoDaysLater,
+        from: fromDate,
+        to: toDate,
     });
 
+    // Form state
     const { data, setData } = useForm({
         hotel_id: hotel?.id || '',
         room_id: '',
-        number_of_rooms: '1',
-        number_of_guests: '1',
-        from: today.toISOString(),
-        to: twoDaysLater.toISOString(),
+        number_of_rooms: filters.number_of_rooms || '1',
+        number_of_guests: filters.number_of_guests || '1',
+        from: fromDate.toISOString(),
+        to: toDate.toISOString(),
     });
 
     const handleBookNow = (roomId: string) => {
@@ -43,8 +53,13 @@ const ShowHotel = () => {
         console.log(data);
     };
 
+    const handleSearch = () => {
+        router.get(hotels.show(hotel.slug), data);
+    };
+
     return (
         <WebLayout>
+            <HeaderSearch/>
             <div className="mx-auto max-w-5xl">
                 <Carousel orientation="vertical" className="flex items-center justify-center sm:gap-2">
                     <div className="relative basis-3/4">
@@ -86,19 +101,19 @@ const ShowHotel = () => {
                 </div>
 
                 <div className="mt-8">
-                    <div className="flex items-center gap-6 font-medium uppercase">
+                    <div className="flex items-center gap-6 border-y py-4 font-medium uppercase">
                         <a href="#overview">Overview</a>
                         <a href="#rooms">Rooms</a>
                     </div>
 
-                    <div id="overview">
+                    <div id="overview" className="mt-8">
                         <h3 className="text-2xl">Hotel Overview</h3>
                         <p>{hotel.description}</p>
                     </div>
 
                     <hr className="my-8" />
 
-                    <div className="mb-8 flex gap-4">
+                    <div className="mb-8 flex flex-wrap justify-center gap-4 md:justify-start">
                         {/* Date Picker */}
                         <DatePickerWithRange
                             date={date}
@@ -142,14 +157,17 @@ const ShowHotel = () => {
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
+                        <Button size={'icon'} onClick={handleSearch}>
+                            <Search />
+                        </Button>
                     </div>
 
                     <div id="rooms">
                         <h3 className="mb-4 text-2xl">Available Rooms</h3>
                         <div className="flex flex-col">
                             {rooms.map((room) => (
-                                <div key={room.id} className="flex rounded-md border p-4">
-                                    <div className="flex grow gap-2">
+                                <div key={room.id} className="flex flex-col rounded-md border p-4 sm:flex-row">
+                                    <div className="flex grow items-center gap-2">
                                         <Carousel orientation="horizontal" className="w-40">
                                             <div className="relative basis-3/4">
                                                 <CarouselMainContainer className="aspect-square h-40 w-40">
@@ -162,24 +180,33 @@ const ShowHotel = () => {
                                             </div>
                                         </Carousel>
                                         <div className="flex flex-col gap-2">
-                                            <span className="font-medium">Superior Delux</span>
-                                            <span className="text-xl font-bold">BDT 16,545.08 per nights</span>
+                                            <span className="font-medium">{room.room_type?.name}</span>
+                                            <span className="text-xl font-bold">USD {room.price_per_night} per night</span>
                                             <div className="flex flex-wrap gap-2">
-                                                <Badge variant={'outline'}>
-                                                    {' '}
-                                                    <Check size={14} /> sdfsdf
-                                                </Badge>
+                                                {room.room_type?.facilities?.map((facility) => (
+                                                    <Badge key={facility} variant={'outline'}>
+                                                        <Check size={14} /> {facility}
+                                                    </Badge>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col justify-center gap-2 text-center">
-                                        <span>BDT 123.334</span>
-                                        <span>Per Night</span>
+                                    <div className="mt-4 flex items-center justify-center gap-4 text-center sm:mt-0 sm:flex-col sm:gap-2">
+                                        <div className="flex items-center gap-4 sm:flex-col">
+                                            <span className="text-lg font-medium">USD {room.price_per_night}</span>
+                                            <span>Per Night</span>
+                                        </div>
 
-                                        <Button onClick={() => handleBookNow(room.id.toString())}>Book Now {room.id}</Button>
+                                        <Button onClick={() => handleBookNow(room.id.toString())}>Book Now</Button>
                                     </div>
                                 </div>
                             ))}
+
+                            {rooms.length < 1 && (
+                                <Card>
+                                    <CardContent>No Rooms Found</CardContent>
+                                </Card>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Web;
 
+use App\Http\Resources\RoomTypeResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,6 +32,7 @@ class RoomResource extends JsonResource
             'price_per_night' => $this->price_per_night,
             'images'          => $images,
             'status'          => $this->status,
+            'room_type'       => new RoomTypeResource($this->whenLoaded('room_type')),
         ];
     }
 }

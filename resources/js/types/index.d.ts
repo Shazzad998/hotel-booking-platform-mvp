@@ -156,3 +156,11 @@ export type SelectOption = {
     description?: string;
     image?: string;
 };
+
+
+export interface QueryFilters {
+  from: string;
+  to: string;
+  number_of_rooms: string;
+  number_of_guests: string;
+}
