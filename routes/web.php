@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\HotelController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\RoomTypeController;
@@ -21,6 +22,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('/bookings', [AdminBookingController::class, 'index'])->name('user.bookings.index');
+    Route::get('/bookings/{id}', [AdminBookingController::class, 'show'])->name('user.bookings.show');
+    Route::post('/bookings/{id}/cancel', [AdminBookingController::class, 'cancel'])->name('user.bookings.cancel');
+
+
     //Admin Routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         //Hotel Routes
@@ -34,6 +41,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         //Room Routes
         Route::resource('rooms', RoomController::class);
         Route::post('rooms/bulk-delete', [RoomController::class, 'bulkDelete'])->name('rooms.bulk-delete');
+
+        Route::get('/bookings', [AdminBookingController::class, 'adminIndex'])->name('bookings.index');
+        Route::get('/bookings/{id}', [AdminBookingController::class, 'adminShow'])->name('bookings.show');
+        Route::post('/bookings/{id}/update-status', [AdminBookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+
     });
 });
 

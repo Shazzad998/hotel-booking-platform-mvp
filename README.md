@@ -12,7 +12,7 @@ GitHub Repository: [hotel-booking-platform-mvp](https://github.com/Shazzad998/ho
 
 ## ⚙️ System Requirements
 
-- PHP **8.2+**
+- PHP **8.3+**
 - Composer **2.x**
 - Node.js **22+**
 - NPM **10+**
@@ -99,7 +99,7 @@ Once the servers are running, visit:
 
 ## 📂 Tech Stack
 
-- **Backend**: Laravel 12, PHP 8.2  
+- **Backend**: Laravel 12, PHP 8.4  
 - **Frontend**: React, Inertia.js, Vite  
 - **Database**: SQLite (default)  
 

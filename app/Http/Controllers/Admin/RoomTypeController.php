@@ -8,10 +8,18 @@ use App\Http\Requests\UpdateRoomTypeRequest;
 use App\Http\Resources\RoomTypeResource;
 use App\Models\RoomType;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Inertia\Inertia;
 
-class RoomTypeController extends Controller
+class RoomTypeController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return ['admin'];
+    }
     /**
      * Display a listing of the resource.
      */

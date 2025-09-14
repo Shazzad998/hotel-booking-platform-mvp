@@ -10,11 +10,19 @@ use App\Models\Hotel;
 use App\Models\Room;
 use App\Models\RoomType;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
-class RoomController extends Controller
+class RoomController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return ['admin'];
+    }
     /**
      * Display a listing of the resource.
      */

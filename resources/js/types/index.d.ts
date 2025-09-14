@@ -20,6 +20,7 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    show?:boolean;
 }
 
 export interface SharedData {
@@ -34,6 +35,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    role: string;
     phone?: string;
     avatar?: string;
     email_verified_at: string | null;
@@ -83,10 +85,8 @@ export interface DataTableProps {
     setSelectedAll: (selected: boolean) => void;
     columns: DataTableColumn[];
     list_route: string;
-    handleShow: (item: any) => void;
-    handleEdit: (item: any) => void;
-    confirmDelete: (item: any) => void;
-    confirmBulkDelete: (item: any) => void;
+    bulkActions?: DataTableBulkAction[];
+    actions?: DataTableAction[];
 }
 
 export interface Filters {

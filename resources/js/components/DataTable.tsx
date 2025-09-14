@@ -19,10 +19,8 @@ const DataTable = ({
     setSelectedAll,
     columns,
     list_route,
-    handleShow,
-    handleEdit,
-    confirmDelete,
-    confirmBulkDelete,
+  bulkActions = [],
+    actions = [],
 }: DataTableProps) => {
     const filters = usePage().props.filters as Filters;
     const ids = usePage().props.ids as number[];
@@ -82,31 +80,6 @@ const DataTable = ({
             setSelected([]);
         }
     };
-
-    const bulkActions: DataTableBulkAction[] = [
-        {
-            label: 'Delete',
-            icon: <TrashIcon />,
-            onClick: confirmBulkDelete,
-        },
-    ];
-    const actions: DataTableAction[] = [
-        {
-            label: 'Show',
-            icon: <Eye />,
-            onClick: handleShow,
-        },
-        {
-            label: 'Edit',
-            icon: <Pencil />,
-            onClick: handleEdit,
-        },
-        {
-            label: 'Delete',
-            icon: <TrashIcon />,
-            onClick: confirmDelete,
-        },
-    ];
 
     return (
         <>
