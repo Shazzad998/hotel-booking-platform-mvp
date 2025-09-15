@@ -73,6 +73,13 @@ Once the servers are running, visit:
 
 ---
 
+## 🔑 Admin Login Credentials
+
+You can log in to the admin panel using the following default credentials (created via database seeder):
+
+- **Email:** admin@hotel.com  
+- **Password:** admin12345
+
 ## 🛠 Useful Commands
 
 - Run Laravel server only:
